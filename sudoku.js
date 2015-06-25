@@ -22,8 +22,29 @@ var testBoard = [
 0, 0, 5, 0, 1, 0, 3, 0, 0
 ];
 
+var clueBackground = "silver";
+
 generateBoardHTML();
 displayBoardVals(testBoard);
+disableBoardVals();
+
+function clearMessages() {
+	var output = document.getElementById("messages");
+	output.innerHTML = "";
+	output.style.color = "black";
+}
+	
+function error(message) {
+	var output = document.getElementById("messages");
+	output.innerHTML = message;
+	output.style.color = "red";
+}
+
+function info(message) {
+	var output = document.getElementById("messages");
+	output.innerHTML = message;
+	output.style.color = "black";
+}
 
 function getCell(board, i, j) {
 	return board[j*9 + i];
@@ -62,11 +83,11 @@ function readBoardVals() {
 }
 
 function solve() {
+	clearMessages();
 	var board = readBoardVals();
 	if (!validate(board)) {
-		document.getElementById("solve").style.color = "red";
-	} else {
-		document.getElementById("solve").style.color = "green";
+		error("Cannot solve this board, there is an incorrectly placed tile.");
+		return;
 	}
 
 	var results = findResults(board, true);
@@ -76,6 +97,7 @@ function solve() {
 }
 
 function hint() {
+	clearMessages();
 	var board = readBoardVals();
 	for (var j = 0; j < 9; j++) {
 		for (var i = 0; i < 9; i++) {
@@ -97,7 +119,20 @@ function hint() {
 	}
 }
 
+function boardClear() {
+	clearMessages();
+	for (var i = 0; i < 9; i++) {
+		for (var j = 0; j < 9; j++) {
+			var cell = document.getElementById(getCellId(i, j));
+			if (cell.style.background != clueBackground) {
+				cell.value = "";
+			}
+		}
+	}
+}
+
 function generate() {
+	clearMessages();
 	var board = emptyBoard.slice();
 	for (var val = 0; val < 10; val++) {
 		var i   = getRandomInt(0, 9);
@@ -112,7 +147,8 @@ function generate() {
 
 	var results = findResults(board, true);
 	if (results.length == 0) {
-		console.log("Generation failed");
+		error("Generation failed. Please try again.");
+		return;
 	}
 
 	board = results[0];
@@ -136,6 +172,37 @@ function generate() {
 	}
 
 	displayBoardVals(board);
+	disableBoardVals();
+}
+
+function disableBoardVals() {
+	for (var i = 0; i < 9; i++) {
+		for (var j = 0; j < 9; j++) {
+			var cell = document.getElementById(getCellId(i, j));
+
+			if (cell.value == "") {
+				cell.style.color = "black";
+				cell.style.background = "white";
+				cell.onkeydown = function(e) {
+					if (e.keyCode == 8 || e.keyCode == 46) {
+						e.target.value = "";
+						return false;
+					}
+
+					var value = e.keyCode - 48;
+					if (value > 0 && value <= 9) {
+						e.target.value = value;
+					}
+					return false;
+				};
+			} else {
+				cell.style.color = "black";
+				cell.style.background = clueBackground;
+				cell.onkeydown = function() { return false };
+			}
+		}
+	}
+	
 }
 
 function findResults(board, exitAfterFirst) {
@@ -293,7 +360,7 @@ function generateBoardHTML() {
 function createRowHTML(j) {
 	var rowHTML = '<div id="row' + j + '">';
 	for (var i = 0; i < 9; i++) {
-		var input = '<input type="text" class="cell" id="' + getCellId(i, j) + '"></input>';
+		var input = '<input type="text" pattern="[1-9]" class="cell" id="' + getCellId(i, j) + '"></input>';
 		rowHTML += input;
 	}
 	rowHTML += '</div>';

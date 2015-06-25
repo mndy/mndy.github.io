@@ -111,7 +111,7 @@ function hint() {
 				document.getElementById(cellId).style.background = hintColor;
 				setTimeout(
 					function() {
-						document.getElementById(cellId).style.background = "";
+						document.getElementById(cellId).style.background = defaultBackground;
 					},
 					1000
 				);

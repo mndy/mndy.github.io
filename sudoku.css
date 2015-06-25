@@ -1,14 +1,25 @@
+#game {
+	text-align: center;
+}
 #board {
 	text-align: center;
+	border: none;
+	display: inline-block;
+	margin: 20px;
+	border: 1px solid black;
 }
-#buttons {
-	text-align: center;
-}
-#messages {
-	text-align: center;
+.block {
+	display: inline-block;
+	border: 1px solid black;
+	margin: 0 0 0 0;
+	padding: 0px;
 }
 .cell {
 	height: 2em;
 	width: 2em;
 	text-align: center;
+	border: 1px solid black;
+}
+.cell:focus {
+	outline: 2px solid green;
 }

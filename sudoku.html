@@ -43,19 +43,49 @@
 	</nav>
 
 	<!-- Sudoku -->
+	<div id="game">
 	<div class="row">
-		<div class="col-sm-12 col-md-12 col-lg-12" id="board"></div>
-		<div class="col-sm-12 col-md-12 col-lg-12" id="buttons">
-			<button class="btn btn-default" id="solve"    onclick="solve();">Solve</button>
-			<button class="btn btn-default" id="generate" onclick="generate();">Generate</button>
-			<button class="btn btn-default" id="clear"    onclick="boardClear();">Clear</button>
+		<div class="col-sm-12 col-md-12 col-lg-12 col-centered">
+			<div class="btn-group">
+				<button class="btn btn-default" id="solve"    onclick="solve();">Solve</button>
+				<button class="btn btn-primary" id="generate" onclick="generate();">Generate</button>
+				<button class="btn btn-default" id="clear"    onclick="boardClear();">Clear</button>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-12 col-md-12 col-lg-12 col-centered">
+			<div id="board">
+				<div style="display: flex;">
+					<div id="block0_0" class="block"></div>
+					<div id="block1_0" class="block"></div>
+					<div id="block2_0" class="block"></div>
+				</div>
+				<div style="display: flex;">
+					<div id="block0_1" class="block"></div>
+					<div id="block1_1" class="block"></div>
+					<div id="block2_1" class="block"></div>
+				</div>
+				<div style="display: flex;">
+					<div id="block0_2" class="block"></div>
+					<div id="block1_2" class="block"></div>
+					<div id="block2_2" class="block"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-12 col-md-12 col-lg-12 col-centered">
 			<button class="btn btn-danger" 	id="hint"     onclick="hint();">Hint</button>
 		</div>
-		<div class="col-sm-12 col-md-12 col-lg-12">
+	</div>
+	<div class="row">
+		<div class="col-sm-12 col-md-12 col-lg-12 col-centered">
 			<p id="messages"></p>
 		</div>
 	</div>
 	<script src="sudoku.js"></script>
+	</div>
 
 	<!-- Bootstrap JavaScript -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>

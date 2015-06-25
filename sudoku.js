@@ -22,7 +22,9 @@ var testBoard = [
 0, 0, 5, 0, 1, 0, 3, 0, 0
 ];
 
-var clueBackground = "silver";
+var clueBackground    = "#EBEBEB";
+var hintColor         = "#CCFF99";
+var defaultBackground = "white";
 
 generateBoardHTML();
 displayBoardVals(testBoard);
@@ -106,7 +108,7 @@ function hint() {
 			}
 			if (getPossibleValues(board, i, j).length == 1) {
 				var cellId = getCellId(i, j);
-				document.getElementById(cellId).style.background = "green";
+				document.getElementById(cellId).style.background = hintColor;
 				setTimeout(
 					function() {
 						document.getElementById(cellId).style.background = "";
@@ -124,7 +126,7 @@ function boardClear() {
 	for (var i = 0; i < 9; i++) {
 		for (var j = 0; j < 9; j++) {
 			var cell = document.getElementById(getCellId(i, j));
-			if (cell.style.background != clueBackground) {
+			if (defaultBackground == cell.style.background) {
 				cell.value = "";
 			}
 		}
@@ -165,7 +167,7 @@ function generate() {
 		setCell(tmp, i, j, 0);
 		setCell(tmp, 8 - i, j, 0);
 
-		if (findResults(tmp).length == 1) {
+		if (findResults(tmp, false).length == 1) {
 			board = tmp;
 			num++;	
 		}
@@ -352,19 +354,24 @@ function getCellId(i, j) {
 }
 
 function generateBoardHTML() {
-	for (var i = 0; i < 9; i++) {
-		createRowHTML(i);
+	for (var j = 0; j < 9; j++) {
+		for (var i = 0; i < 9; i++) {
+			var blocki = Math.floor(i / 3);
+			var blockj = Math.floor(j / 3);
+			var block = document.getElementById("block" + blocki + "_" + blockj);
+			
+			if (i % 3 == 0) {
+				block.innerHTML += '<div class="blockrow">'
+			}
+			var input = '<input type="text" pattern="[1-9]" class="cell" id="' +
+			            getCellId(i, j) +
+			            '"></input>';
+			if (i % 3 == 2) {
+				block.innerHTML += '</div>'
+			}
+			block.innerHTML += input;
+		}
 	}
-}
-
-function createRowHTML(j) {
-	var rowHTML = '<div id="row' + j + '">';
-	for (var i = 0; i < 9; i++) {
-		var input = '<input type="text" pattern="[1-9]" class="cell" id="' + getCellId(i, j) + '"></input>';
-		rowHTML += input;
-	}
-	rowHTML += '</div>';
-	document.getElementById("board").innerHTML += rowHTML;
 }
 
 function getRandomInt(min, max) {

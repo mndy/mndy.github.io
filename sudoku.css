@@ -1,0 +1,11 @@
+#board {
+	text-align: center;
+}
+#buttons {
+	text-align: center;
+}
+.cell {
+	height: 1.5em;
+	width: 1.5em;
+	text-align: center;
+}

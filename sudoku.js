@@ -1,3 +1,17 @@
+// JavaScript for a simple sudoku game.  The code is currently capable of
+// generating simple sudoku problems, and solving any sudoku problem (using
+// backtracking).
+//
+// (c) Michael Munday 2015
+// 
+// This file is distributed under the GPLv3 copyleft license. See here for
+// details: https://gnu.org/licenses/gpl.html
+
+// Boards are stored in two forms - a 1D array which is indexed using 9j + i and
+// the displayed form that the user interacts with.  In the array form 0
+// represents undefined whereas in the displayed form undefined tiles are
+// represented by "".
+
 var emptyBoard = [
 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -22,59 +36,60 @@ var testBoard = [
 0, 0, 5, 0, 1, 0, 3, 0, 0
 ];
 
+// Some colours - used for showing tile state.
 var clueBackground    = "#EBEBEB";
 var hintColor         = "#CCFF99";
 var defaultBackground = "white";
 
+// Generate some HTML and fill it with an initial game.
 generateBoardHTML();
 displayBoardVals(testBoard);
 disableBoardVals();
 
-function clearMessages() {
-	var output = document.getElementById("messages");
-	output.innerHTML = "";
-	output.style.color = "black";
-}
-	
+// Print an error message to the screen in red. Will be cleared when a button is
+// pressed.
 function error(message) {
 	var output = document.getElementById("messages");
 	output.innerHTML = message;
 	output.style.color = "red";
 }
 
-function info(message) {
+// Clears the current messages.
+function clearMessages() {
 	var output = document.getElementById("messages");
-	output.innerHTML = message;
-	output.style.color = "black";
+	output.innerHTML = "";
 }
 
+// Get the value of a cell (a.k.a. a tile) from an array.
 function getCell(board, i, j) {
 	return board[j*9 + i];
 }
 
+// Set the value of a cell (a.k.a. a tile) in an array.
 function setCell(board, i, j, val) {
 	board[j*9 + i] = val;
 }
 
+// Display the provided board in the HTML.
 function displayBoardVals(board) {
 	for (var i = 0; i < 9; i++) {
 		for (var j = 0; j < 9; j++) {
 			var cellValue = getCell(board, i, j);
-			if (cellValue == 0) {
-				document.getElementById(getCellId(i, j)).value = "";
-			} else {
-				document.getElementById(getCellId(i, j)).value = cellValue;
+			if (cellValue === 0) {
+				cellValue = "";
 			}
+			document.getElementById(getCellId(i, j)).value = cellValue;
 		}
 	}
 }
 
+// Read board values from the HTML inputs and put them into a 1D array.
 function readBoardVals() {
 	var board = emptyBoard.slice();
 	for (var j = 0; j < 9; j++) {
 		for (var i = 0; i < 9; i++) {
 			cellValue = document.getElementById(getCellId(i, j)).value;
-			if (cellValue == "") {
+			if (cellValue === "") {
 				setCell(board, i, j, 0);
 			} else {
 				setCell(board, i, j, parseInt(cellValue));
@@ -84,6 +99,8 @@ function readBoardVals() {
 	return board;
 }
 
+// Solve the displayed sudoku using a backtracking based method. Will return the
+// first correct solution found.
 function solve() {
 	clearMessages();
 	var board = readBoardVals();
@@ -98,6 +115,8 @@ function solve() {
 	}
 }
 
+// Display a simple hint on the screen for a second. The hint shows a cell which
+// has only one possible value at the current time.
 function hint() {
 	clearMessages();
 	var board = readBoardVals();
@@ -106,13 +125,11 @@ function hint() {
 			if (getCell(board, i, j) != 0) {
 				continue;
 			}
-			if (getPossibleValues(board, i, j).length == 1) {
-				var cellId = getCellId(i, j);
-				document.getElementById(cellId).style.background = hintColor;
+			if (getPossibleValues(board, i, j).length === 1) {
+				var cell = document.getElementById(getCellId(i, j));
+				cell.style.background = hintColor;
 				setTimeout(
-					function() {
-						document.getElementById(cellId).style.background = defaultBackground;
-					},
+					function() { cell.style.background = defaultBackground; },
 					1000
 				);
 				return;		
@@ -121,18 +138,32 @@ function hint() {
 	}
 }
 
+// Clear the currently displayed board of all none-"clue" values.
 function boardClear() {
 	clearMessages();
 	for (var i = 0; i < 9; i++) {
 		for (var j = 0; j < 9; j++) {
 			var cell = document.getElementById(getCellId(i, j));
-			if (defaultBackground == cell.style.background) {
+			if (defaultBackground === cell.style.background) {
 				cell.value = "";
 			}
 		}
 	}
 }
 
+// Generate a sudoku game. Currently this uses a fairly crude technique which
+// seems to generate reasonable, albeit easy, games.
+//
+// The generator starts by placing each of the values [1, 9] in random locations
+// on the board. It then attempts to solve the problem generating one or more
+// valid complete sudoku solutions. The algorithm selects the first of these
+// and then starts deleting cells in symmetric pairs (for cosmetic reasons).
+// Each time a pair of cells are deleted the board is solved to ensure that it
+// provides a unique solution.
+//
+// Due to the repeated solving, performance can get a little sluggish.  On
+// modern desktops the generation will be instantaneous, on mid-range mobile
+// devices the generation might take a second or two.
 function generate() {
 	clearMessages();
 	var board = emptyBoard.slice();
@@ -148,7 +179,7 @@ function generate() {
 	}
 
 	var results = findResults(board, true);
-	if (results.length == 0) {
+	if (results.length === 0) {
 		error("Generation failed. Please try again.");
 		return;
 	}
@@ -159,7 +190,7 @@ function generate() {
 		var i = getRandomInt(0, 5);
 		var j = getRandomInt(0, 9);
 
-		if (getCell(board, i, j) == 0) {
+		if (getCell(board, i, j) === 0) {
 			continue;
 		}
 
@@ -167,7 +198,7 @@ function generate() {
 		setCell(tmp, i, j, 0);
 		setCell(tmp, 8 - i, j, 0);
 
-		if (findResults(tmp, false).length == 1) {
+		if (findResults(tmp, false).length === 1) {
 			board = tmp;
 			num++;	
 		}
@@ -177,16 +208,18 @@ function generate() {
 	disableBoardVals();
 }
 
+// Goes through the displayed board and converts all the values to "clues" -
+// giving them a grey background and making them read-only.
 function disableBoardVals() {
 	for (var i = 0; i < 9; i++) {
 		for (var j = 0; j < 9; j++) {
 			var cell = document.getElementById(getCellId(i, j));
 
-			if (cell.value == "") {
+			if (cell.value === "") {
 				cell.style.color = "black";
 				cell.style.background = "white";
 				cell.onkeydown = function(e) {
-					if (e.keyCode == 8 || e.keyCode == 46) {
+					if (e.keyCode === 8 || e.keyCode === 46) {
 						e.target.value = "";
 						return false;
 					}
@@ -207,6 +240,16 @@ function disableBoardVals() {
 	
 }
 
+// Uses a backtracking algorithm to find solutions to the given sudoku board.  
+// If exitAfterFirst is true it will not try to find all the possible results
+// and instead will just return the first one it encountered.
+// 
+// The algorithm works by looking for the cell with the least possible values,
+// based solely on the row, column and block the cell is in.  If the number of
+// values is 0 then the board is a dead-end and cannot be solved. If the number
+// is 1 then the value can simply be substituted into the board. If there is
+// more than one possibility then two or more new boards are created and the
+// algorithm repeats the process for each of them.
 function findResults(board, exitAfterFirst) {
 	var results = [];
 	var boards = [board];
@@ -219,7 +262,7 @@ function findResults(board, exitAfterFirst) {
 		};
 		for (var j = 0; j < 9; j++) {
 			for (var i = 0; i < 9; i++) {
-				if (getCell(board, i, j) == 0) {
+				if (getCell(board, i, j) === 0) {
 					var candidates = getPossibleValues(board, i, j);
 					if (candidates.length <= update.candidates.length) {
 						update.i = i;
@@ -246,6 +289,7 @@ function findResults(board, exitAfterFirst) {
 	return results;
 }
 
+// Figure out what values a cell could have based on its row, column and block.
 function getPossibleValues(board, i, j) {
 	var seen = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 	var indices = [];
@@ -285,19 +329,20 @@ function getPossibleValues(board, i, j) {
 	// Return possible values
 	var candidates = [];
 	for (var v = 1; v <= 9; v++) {
-		if (seen[v] == 0) {
+		if (seen[v] === 0) {
 			candidates.push(v);
 		}
 	}
 	return candidates;
 }
 
+// Check if the board given represents a valid sudoku board or not.
 function validate(board) {
 	// Check all tiles can be assigned
 	for (var j = 0; j < 9; j++) {
 		for (var i = 0; i < 9; i++) {
 			var candidates = getPossibleValues(board, i, j);
-			if (candidates.length == 0) {
+			if (candidates.length === 0) {
 				return false;
 			}
 		}
@@ -349,10 +394,12 @@ function validate(board) {
 	return true;
 }
 
+// Get the id for the input HTML for a cell.
 function getCellId(i, j) {
 	return "cell" + i + "_" + j;
 }
 
+// Generate the HTML representing the sudoku board.
 function generateBoardHTML() {
 	for (var j = 0; j < 9; j++) {
 		for (var i = 0; i < 9; i++) {
@@ -360,13 +407,13 @@ function generateBoardHTML() {
 			var blockj = Math.floor(j / 3);
 			var block = document.getElementById("block" + blocki + "_" + blockj);
 			
-			if (i % 3 == 0) {
+			if (i % 3 === 0) {
 				block.innerHTML += '<div class="blockrow">'
 			}
 			var input = '<input type="text" pattern="[1-9]" class="cell" id="' +
 			            getCellId(i, j) +
 			            '"></input>';
-			if (i % 3 == 2) {
+			if (i % 3 === 2) {
 				block.innerHTML += '</div>'
 			}
 			block.innerHTML += input;
@@ -374,6 +421,7 @@ function generateBoardHTML() {
 	}
 }
 
+// Generate an int between [min, max).
 function getRandomInt(min, max) {
 	return Math.floor(Math.random() * (max - min)) + min;
 }

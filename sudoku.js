@@ -41,10 +41,18 @@ var clueBackground    = "#EBEBEB";
 var hintColor         = "#CCFF99";
 var defaultBackground = "white";
 
-// Generate some HTML and fill it with an initial game.
-generateBoardHTML();
-displayBoardVals(testBoard);
-disableBoardVals();
+$(document).ready(function() {
+	// Generate a board and fill it with an initial set of clues.
+	generateBoardHTML();
+	displayBoardVals(testBoard);
+	disableBoardVals();
+
+	// Register click callbacks
+	$('button#solve').click(solve);
+	$('button#generate').click(generate);
+	$('button#hint').click(hint)
+	$('button#clear').click(boardClear);
+});
 
 // Print an error message to the screen in red. Will be cleared when a button is
 // pressed.
@@ -185,7 +193,6 @@ function generate() {
 	}
 
 	board = results[0];
-
 	for (var num = 0; num < 25;) {
 		var i = getRandomInt(0, 5);
 		var j = getRandomInt(0, 9);

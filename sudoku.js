@@ -408,22 +408,22 @@ function getCellId(i, j) {
 
 // Generate the HTML representing the sudoku board.
 function generateBoardHTML() {
-	for (var j = 0; j < 9; j++) {
-		for (var i = 0; i < 9; i++) {
-			var blocki = Math.floor(i / 3);
-			var blockj = Math.floor(j / 3);
-			var block = document.getElementById("block" + blocki + "_" + blockj);
-			
-			if (i % 3 === 0) {
-				block.innerHTML += '<div class="blockrow">'
+	for (var jj = 0; jj < 3; jj++) {
+		for (var ii = 0; ii < 3; ii++) {
+			var block = document.getElementById("block" + ii + "_" + jj);
+			for (var j = 0; j < 3; j++) {
+				var row = document.createElement("div");
+				row.className = "blockrow";
+				for (var i = 0; i < 3; i++) {
+					var input = document.createElement("input");
+					input.className = "cell";
+					input.type      = "text";
+					input.id        = getCellId(ii * 3 + i, jj * 3 + j);
+					input.pattern   = "[1-9]";
+					row.appendChild(input);
+				}
+				block.appendChild(row);
 			}
-			var input = '<input type="text" pattern="[1-9]" class="cell" id="' +
-			            getCellId(i, j) +
-			            '"></input>';
-			if (i % 3 === 2) {
-				block.innerHTML += '</div>'
-			}
-			block.innerHTML += input;
 		}
 	}
 }
